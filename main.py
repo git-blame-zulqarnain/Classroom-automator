@@ -1,5 +1,5 @@
 from auth.google_auth import getClassroomService
-from modules.courses import getCourses
+from modules.courses import filterCourses, getCourses,printCourses
 
 
 def main():
@@ -13,7 +13,7 @@ def main():
 
         print("Relevant Courses\n")
 
-        print(relevant_courses)
+        printCourses(relevant_courses)
 
     
 
