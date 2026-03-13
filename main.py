@@ -7,7 +7,15 @@ def main():
 
     if service:
         print("Connected to Google Classroom API")
-        courses = getCourses(service)
+
+        all_courses = getCourses(service)
+        relevant_courses=filterCourses(all_courses)
+
+        print("Relevant Courses\n")
+
+        print(relevant_courses)
+
+    
 
     else:
         print("Failed to connect to Google Classroom API")
