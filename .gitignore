@@ -1,2 +1,4 @@
 .env
 API_Secrets
+auth\__pycache__
+token.pkl
