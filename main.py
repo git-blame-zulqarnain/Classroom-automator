@@ -1,6 +1,6 @@
 from auth.google_auth import getClassroomService
 from modules.courses import filterCourses, getCourses,printCourses
-from modules.assignments import getAssignments,getSubmissionStatus
+from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,forMySection)
 
 
 def main():
@@ -28,6 +28,14 @@ def main():
                 print("No Assignments found")
 
             for a in assignments:
+
+                dueDate=a["dueDate"]
+
+                if not stillDue(dueDate):
+                    continue
+
+                if not forMySection(a["title"]):
+                    continue
 
                 status=getSubmissionStatus(service,course["id"],a["id"])
 

@@ -1,6 +1,22 @@
 from datetime import date
+from config.settings import MY_SECTION
 
 
+def forMySection(title):
+    title=title.upper()
+
+    otherSections=["B","C","D","E","F","G"]
+    
+
+    for sec in otherSections:
+        if f"SECTION {sec}" in title or f"SEC {sec}" in title or f"CS-{sec}" in title or f"CS {sec}" in title:
+            return False
+
+    if f"SECTION {MY_SECTION}" in title or f"SEC {MY_SECTION}" in title or f"CS-{MY_SECTION}" in title or f"CS {MY_SECTION}" in title:
+        return True
+    
+
+    return True
 
 
 def stillDue(dueDate):
