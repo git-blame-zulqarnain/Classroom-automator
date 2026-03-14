@@ -21,8 +21,7 @@ def forMySection(title):
 
 def stillDue(dueDate):
 
-    if not dueDate:
-
+    if not dueDate or dueDate=={}:
         return False
 
     today=date.today()
@@ -71,5 +70,7 @@ def getSubmissionStatus(service,course_id,courseWork_id):
         return "UNKNOWN"
     
     return submissions[0].get("state","UNKNOWN")
+
+
 
 

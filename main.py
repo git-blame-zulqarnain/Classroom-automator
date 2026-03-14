@@ -1,7 +1,10 @@
 from auth.google_auth import getClassroomService
 from modules.courses import filterCourses, getCourses,printCourses
 from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,forMySection)
+from colorama import Fore,Style,init
 
+
+init(autoreset=True)
 
 def main():
     service = getClassroomService()
@@ -20,12 +23,13 @@ def main():
 
         for course in relevant_courses:
             
-            print("Course: ",course["name"])
-
             assignments=getAssignments(service,course["id"])
 
             if not assignments:
-                print("No Assignments found")
+                continue
+
+            print(Fore.CYAN +"Course: ",course["name"])
+
 
             for a in assignments:
 
@@ -40,10 +44,10 @@ def main():
                 status=getSubmissionStatus(service,course["id"],a["id"])
 
                 if status!="TURNED_IN":
-                    print("=========Pending :", a["title"], "| Due:", a["dueDate"] , " | Time:", a["dueTime"])
+                    print(Fore.RED + "Pending :", a["title"], "| Due:", a["dueDate"] , " | Time:", a["dueTime"])
 
                 else:
-                    print(".........Submitted :", a["title"], "| Due:", a["dueDate"] , " | Time:", a["dueTime"])
+                    print(Fore.GREEN + "Submitted :", a["title"], "| Due:", a["dueDate"] , " | Time:", a["dueTime"])
 
 
             print()
