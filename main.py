@@ -1,12 +1,16 @@
 from auth.google_auth import getClassroomService
 from modules.courses import filterCourses, getCourses,printCourses
-from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,forMySection)
+from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,forMySection,sortByDue)
 from colorama import Fore,Style,init
+
 
 
 init(autoreset=True)
 
 def main():
+
+    SHOW_NO_DUE = input("Show assignments with NO due date? (y/n): ").lower() == "y"
+
     service = getClassroomService()
 
     if service:
@@ -25,6 +29,8 @@ def main():
             
             assignments=getAssignments(service,course["id"])
 
+            assignments=sortByDue(assignments)
+
             if not assignments:
                 continue
 
@@ -35,7 +41,10 @@ def main():
 
                 dueDate=a["dueDate"]
 
-                if not stillDue(dueDate):
+                if not dueDate:
+                    if not SHOW_NO_DUE:
+                        continue
+                elif not stillDue(dueDate):
                     continue
 
                 if not forMySection(a["title"]):
