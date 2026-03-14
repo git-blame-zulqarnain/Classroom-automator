@@ -4,10 +4,9 @@ from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,for
 from colorama import Fore,Style,init
 from modules.downloader import (getCourseMaterials,extractDriveFiles,downloadFile,downloadNotes)
 
-
-
-
 init(autoreset=True)
+
+
 
     
 
@@ -66,9 +65,18 @@ def main():
             print()
     
 
+        choice=input("Do you want to download course materials? (y/n): ").lower()
+
+        if choice=="y":
+            print(Fore.CYAN + "\nDownloading course materials...\n" )
+            
+            downloadNotes(service,service,relevant_courses)
+            
+
     else:
         print("Failed to connect to Google Classroom API")
 
 
 if __name__ == "__main__":
+    
     main()
