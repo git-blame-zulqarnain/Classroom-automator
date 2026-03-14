@@ -1,11 +1,12 @@
 import os
 import io
+import json
 from config.filePath import DOWNLOAD_FOLDER
 
 from googleapiclient.http import MediaIoBaseDownload
-
-from config.filePath import DOWNLOAD_FOLDER
-
+from utils.classifier import classify_file
+from utils.folder_manager import ensure_folder
+from utils.parser import extract_number
 
 def getCourseMaterials(service,course_id):
     results=service.courses().courseWorkMaterials().list(courseId=course_id).execute()
@@ -54,6 +55,10 @@ def downloadFile(drive_service,file_id,filename,folder):
 
     filepath=os.path.join(folder,filename)
 
+    if os.path.exists(filepath):
+        print(f"File {filename} already exists, skipping download.")
+        return
+
     fh=io.FileIO(filepath,'wb')
 
     downloader=MediaIoBaseDownload(fh,request)
@@ -70,11 +75,19 @@ def downloadFile(drive_service,file_id,filename,folder):
 
 def downloadNotes(classroom,drive,courses):
 
+    with open("data/relevant_courses.json") as f:
+        relevant = json.load(f)["courses"]
+
     for course in courses:
 
         course_name=course["name"]
 
+        if course_name not in relevant:
+            continue
+
+        
         print("\nScanning",course_name)
+
         materials=getCourseMaterials(classroom,course["id"])
 
         files=extractDriveFiles(materials)
@@ -82,7 +95,28 @@ def downloadNotes(classroom,drive,courses):
         course_folder=os.path.join(DOWNLOAD_FOLDER, course_name.replace(" ", "_"))
 
         for f in files:
-            downloadFile(drive,f["file_id"],f["name"],course_folder)
+
+            filename=f["name"]
+            title=f["title"]
+            category=classify_file(filename)
+            number=extract_number(title)
+
+
+            if category=="Assignments" and number:
+                folder=os.path.join(course_folder,"Theory","Assignments",f"Assignment {number}")
+            
+            elif category=="Lecture Slides" and number:
+                folder=os.path.join(course_folder,"Theory","Lecture Slides",f"Lecture {number}")
+
+            elif category=="Lab Work" and number:
+                folder=os.path.join(course_folder,"Lab","Lab Work",f"Lab {number}")
+
+            else:
+                folder=os.path.join(course_folder,"Theory",category)
+            
+            ensure_folder(folder)
+
+            downloadFile(drive,f["file_id"],filename,course_folder)
 
         
     
