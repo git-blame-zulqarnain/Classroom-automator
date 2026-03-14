@@ -1,3 +1,21 @@
+from datetime import date
+
+
+
+
+def stillDue(dueDate):
+
+    if not dueDate:
+
+        return False
+
+    today=date.today()
+
+    due=date(dueDate["year"],dueDate["month"],dueDate["day"])
+
+
+    return due>=today
+
 
 
 def getAssignments(service,course_id):
@@ -37,4 +55,5 @@ def getSubmissionStatus(service,course_id,courseWork_id):
         return "UNKNOWN"
     
     return submissions[0].get("state","UNKNOWN")
+
 
