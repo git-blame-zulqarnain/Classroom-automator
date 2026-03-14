@@ -2,10 +2,14 @@ from auth.google_auth import getClassroomService
 from modules.courses import filterCourses, getCourses,printCourses
 from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,forMySection,sortByDue)
 from colorama import Fore,Style,init
+from modules.downloader import (getCourseMaterials,extractDriveFiles,downloadFile,downloadNotes)
+
 
 
 
 init(autoreset=True)
+
+    
 
 def main():
 

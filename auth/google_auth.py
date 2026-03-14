@@ -6,6 +6,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
+
+
 SCOPES = [
     "https://www.googleapis.com/auth/classroom.courses.readonly",
     "https://www.googleapis.com/auth/classroom.student-submissions.me.readonly",
@@ -49,3 +51,12 @@ def getClassroomService():
 
 
     return service
+
+
+def getDriveService(creds):
+
+    classroom=build("classroom", "v1", credentials=creds)
+
+    drive=build("drive", "v3", credentials=creds)
+
+    return classroom,drive
