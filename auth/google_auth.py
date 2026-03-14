@@ -6,21 +6,17 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
-
-
 SCOPES = [
     "https://www.googleapis.com/auth/classroom.courses.readonly",
     "https://www.googleapis.com/auth/classroom.student-submissions.me.readonly",
     "https://www.googleapis.com/auth/classroom.announcements.readonly",
-    "https://www.googleapis.com/auth/drive.readonly",
-    "https://www.googleapis.com/auth/classroom.courses.readonly",
-    "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
     "https://www.googleapis.com/auth/drive.readonly"
-
 ]
 
 
-def getClassroomService():
+
+
+def getServices():
 
     creds=None
 
@@ -41,22 +37,15 @@ def getClassroomService():
                 return None
             except Exception as e:
                 print(f"An error occurred during authentication: {e}")
+                import traceback
+                traceback.print_exc()
                 return None 
 
         with open("token.pkl", 'wb') as token:
                 pickle.dump(creds, token)
 
 
-    service=build('classroom', 'v1', credentials=creds)
-
-
-    return service
-
-
-def getDriveService(creds):
-
-    classroom=build("classroom", "v1", credentials=creds)
-
-    drive=build("drive", "v3", credentials=creds)
+    classroom=build('classroom', 'v1', credentials=creds)
+    drive=build('drive', 'v3', credentials=creds)
 
     return classroom,drive

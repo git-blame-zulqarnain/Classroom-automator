@@ -1,4 +1,4 @@
-from auth.google_auth import getClassroomService
+from auth.google_auth import getServices
 from modules.courses import filterCourses, getCourses,printCourses
 from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,forMySection,sortByDue)
 from colorama import Fore,Style,init
@@ -14,12 +14,12 @@ def main():
 
     SHOW_NO_DUE = input("Show assignments with NO due date? (y/n): ").lower() == "y"
 
-    service = getClassroomService()
+    classroom, drive = getServices()
 
-    if service:
-        print("Connected to Google Classroom API")
+    if classroom and drive:
+        print("Connected to Google APIs")
 
-        all_courses = getCourses(service)
+        all_courses = getCourses(classroom)
         relevant_courses=filterCourses(all_courses)
 
         print("Relevant Courses\n")
@@ -30,7 +30,7 @@ def main():
 
         for course in relevant_courses:
             
-            assignments=getAssignments(service,course["id"])
+            assignments=getAssignments(classroom,course["id"])
 
             assignments=sortByDue(assignments)
 
@@ -53,7 +53,7 @@ def main():
                 if not forMySection(a["title"]):
                     continue
 
-                status=getSubmissionStatus(service,course["id"],a["id"])
+                status=getSubmissionStatus(classroom,course["id"],a["id"])
 
                 if status!="TURNED_IN":
                     print(Fore.RED + "Pending :", a["title"], "| Due:", a["dueDate"] , " | Time:", a["dueTime"])
@@ -70,11 +70,11 @@ def main():
         if choice=="y":
             print(Fore.CYAN + "\nDownloading course materials...\n" )
             
-            downloadNotes(service,service,relevant_courses)
+            downloadNotes(classroom,drive,relevant_courses)
             
 
     else:
-        print("Failed to connect to Google Classroom API")
+        print("Failed to connect ")
 
 
 if __name__ == "__main__":
