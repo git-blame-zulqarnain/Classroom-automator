@@ -18,7 +18,13 @@ from colorama import Fore, Style
 DRY_RUN = True
 
 def getCourseMaterials(service,course_id):
-    results=service.courses().courseWorkMaterials().list(courseId=course_id).execute()
+    try:
+        results=service.courses().courseWorkMaterials().list(courseId=course_id).execute()
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return []
 
     materials=results.get('courseWorkMaterial',[])
 
@@ -139,4 +145,3 @@ def downloadNotes(classroom,drive,courses):
             downloadFile(drive,f["file_id"],filename,folder)
 
         
-    
