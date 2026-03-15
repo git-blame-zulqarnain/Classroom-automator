@@ -24,6 +24,12 @@ def classify_file(name):
 
     if "mid" in name or "final" in name or "sessional" in name:
         return "Past Papers"
+    
+    if "deliverable" in name:
+        return "Deliverable"
+    
+    if "project" in name:
+        return "Project"
 
     
     return "Notes"

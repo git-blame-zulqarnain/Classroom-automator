@@ -121,7 +121,7 @@ def normalize_course_name(name):
     if "database" in name:
         return "Database Systems"
     
-    if "probability" in name or "statistics" in name:
+    if "probability" in name or "statistics" in name or "prob" in name or "stats" in name:
         return "Probability and Statistics"
     
     if "pakistan studies" in name:
@@ -172,18 +172,24 @@ def downloadNotes(classroom,drive,courses):
 
             filename=f["name"]
             title=f["title"]
-            category=classify_file(filename)
+            category=classify_file(filename + " " + title)
             number=extract_number(title)
 
 
             if category == "Assignments" and number:
-                folder = os.path.join(course_folder, "Theory", "Assignments", f"Assignment {number}")
+                folder = os.path.join(course_folder, "Theory", "Assignments", f"Assignment {int(number)}")
+
+            elif category=="Deliverable" and number:
+                folder = os.path.join(course_folder, "Theory", "Deliverables", f"Deliverable {int(number)}")
 
             elif category == "Lecture Slides" and number:
-                folder = os.path.join(course_folder, "Theory", "Lecture Slides", f"Lecture {number}")
+                folder = os.path.join(course_folder, "Theory", "Lecture Slides", f"Lecture {int(number)}")
 
-            elif category == "Lab Work" and number:
-                folder = os.path.join(course_folder, "Lab", "Lab Work", f"Lab {number}")
+            elif category == "Lab Work":
+                if number:
+                    folder = os.path.join(course_folder, "Lab", "Lab Work", f"Lab {int(number)}")
+                else:
+                    folder = os.path.join(course_folder, "Lab", "Lab Work")
 
             elif isLab:
                 folder = os.path.join(course_folder, "Lab", category)
