@@ -18,6 +18,7 @@ from colorama import Fore, Style
 DRY_RUN = True
 
 def getCourseMaterials(service,course_id):
+    
     try:
         results=service.courses().courseWorkMaterials().list(courseId=course_id).execute()
         
@@ -29,6 +30,7 @@ def getCourseMaterials(service,course_id):
     materials=results.get('courseWorkMaterial',[])
 
     return materials
+
 
 
 def extractDriveFiles(materials):

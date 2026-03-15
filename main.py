@@ -7,7 +7,6 @@ from modules.downloader import (getCourseMaterials,extractDriveFiles,downloadFil
 init(autoreset=True)
 
 
-
     
 
 def main():
