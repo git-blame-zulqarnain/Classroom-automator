@@ -108,6 +108,29 @@ def downloadFile(drive_service,file_id,filename,folder):
     print(Fore.GREEN + f"Downloaded {filename} to {filepath}")
 
 
+def normalize_course_name(name):
+
+    name=name.lower()
+
+    if "artificial intelligence" in name or "ai-2002" in name:
+        return "Artificial Intelligence"
+    
+    if "operating systems" in name:
+        return "Operating Systems"
+    
+    if "database" in name:
+        return "Database Systems"
+    
+    if "probability" in name or "statistics" in name:
+        return "Probability and Statistics"
+    
+    if "pakistan studies" in name:
+        return "Pakistan Studies"
+
+    if "sda" in name or "software design & analysis" in name:
+        return "Software Design & Analysis"
+    
+    return name.title()
 
 
 def downloadNotes(classroom,drive,courses):
@@ -118,6 +141,7 @@ def downloadNotes(classroom,drive,courses):
     for course in courses:
 
         course_name=course["name"]
+        isLab="lab" in course_name.lower()
 
         if course_name not in relevant:
             continue
@@ -140,7 +164,9 @@ def downloadNotes(classroom,drive,courses):
             print(Fore.YELLOW + "No files found for this course.")
             continue
 
-        course_folder=os.path.join(DOWNLOAD_FOLDER, course_name.replace(" ", "_"))
+        normalized_name=normalize_course_name(course_name)
+
+        course_folder=os.path.join(DOWNLOAD_FOLDER, normalized_name)
 
         for f in files:
 
@@ -150,17 +176,20 @@ def downloadNotes(classroom,drive,courses):
             number=extract_number(title)
 
 
-            if category=="Assignments" and number:
-                folder=os.path.join(course_folder,"Theory","Assignments",f"Assignment {number}")
-            
-            elif category=="Lecture Slides" and number:
-                folder=os.path.join(course_folder,"Theory","Lecture Slides",f"Lecture {number}")
+            if category == "Assignments" and number:
+                folder = os.path.join(course_folder, "Theory", "Assignments", f"Assignment {number}")
 
-            elif category=="Lab Work" and number:
-                folder=os.path.join(course_folder,"Lab","Lab Work",f"Lab {number}")
+            elif category == "Lecture Slides" and number:
+                folder = os.path.join(course_folder, "Theory", "Lecture Slides", f"Lecture {number}")
+
+            elif category == "Lab Work" and number:
+                folder = os.path.join(course_folder, "Lab", "Lab Work", f"Lab {number}")
+
+            elif isLab:
+                folder = os.path.join(course_folder, "Lab", category)
 
             else:
-                folder=os.path.join(course_folder,"Theory",category)
+                folder = os.path.join(course_folder, "Theory", category)
             
             print(Fore.BLUE + f"Processing file: {filename} | Classified as: {category} | Title: {title}")
 

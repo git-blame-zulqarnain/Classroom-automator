@@ -10,7 +10,7 @@ def classify_file(name):
     if "lab" in name:
         return "Lab Work"
 
-    if "lecture" in name or "slides" in name:
+    if "lecture" in name or "slides" in name or "lec" in name or "ppt" in name:
         return "Lecture Slides"
 
     if "quiz" in name or "test" in name:
