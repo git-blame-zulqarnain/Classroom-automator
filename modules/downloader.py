@@ -3,6 +3,7 @@ import io
 import sys
 import json
 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config.filePath import DOWNLOAD_FOLDER
@@ -16,6 +17,7 @@ from utils.parser import extract_number
 from colorama import Fore, Style
 
 DRY_RUN = True
+
 
 def getCourseMaterials(service,course_id):
     
@@ -32,6 +34,20 @@ def getCourseMaterials(service,course_id):
     return materials
 
 
+
+def getCourseWork(service,course_id):
+    
+    try:
+        results=service.courses().courseWork().list(courseId=course_id).execute()
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return []
+
+    coursework=results.get('courseWork',[])
+
+    return coursework
 
 def extractDriveFiles(materials):
     files=[]
@@ -113,8 +129,12 @@ def downloadNotes(classroom,drive,courses):
         print(Fore.CYAN + "====================================")
 
         materials=getCourseMaterials(classroom,course["id"])
+        coursework=getCourseWork(classroom,course["id"])
 
-        files=extractDriveFiles(materials)
+        materialFiles=extractDriveFiles(materials)
+        assignmentFiles=extractDriveFiles(coursework)
+
+        files=materialFiles + assignmentFiles
 
         if not files:
             print(Fore.YELLOW + "No files found for this course.")
