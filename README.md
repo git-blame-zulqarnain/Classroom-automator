@@ -15,9 +15,23 @@ AI Based File Categorization
     
 UI For Toggling
 Warning: file larger than 200MB
+
+
 Make Terminal Output Neat
 
-
 GSoC level smart automator that is a really powerful automator
+
+
+Idea:
+    Automatically generate a course index dashboard like:
+
+        AI
+        ├ Lectures: 12
+        ├ Assignments: 3
+        ├ Labs: 7
+        └ Last Updated: Today
+
+
+Find all material from announcements
 
 

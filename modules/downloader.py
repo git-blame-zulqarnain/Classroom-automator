@@ -184,10 +184,18 @@ def downloadNotes(classroom,drive,courses):
 
             elif category == "Lecture Slides" and number:
                 folder = os.path.join(course_folder, "Theory", "Lecture Slides", f"Lecture {int(number)}")
+            
+            elif category == "Homework" and number:
+                folder = os.path.join(course_folder, "Theory", "Homework", f"Homework {int(number)}")
+
+            elif category == "Class Activities" and number:
+                folder = os.path.join(course_folder, "Theory", "Class Activities", f"Activity {int(number)}")
 
             elif category == "Lab Work":
+
                 if number:
                     folder = os.path.join(course_folder, "Lab", "Lab Work", f"Lab {int(number)}")
+                    
                 else:
                     folder = os.path.join(course_folder, "Lab", "Lab Work")
 
