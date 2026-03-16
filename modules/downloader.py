@@ -1,8 +1,13 @@
 import os
 import io
+import time
 import sys
 import json
 
+
+from concurrent.futures import ThreadPoolExecutor
+from config.settings import MY_SECTION
+from tqdm import tqdm
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -12,9 +17,11 @@ from googleapiclient.http import MediaIoBaseDownload
 
 from utils.classifier import classify_file
 from utils.folder_manager import ensure_folder
-from utils.parser import extract_number
+from utils.parser import extract_number,sanitize_filename
 
 from colorama import Fore, Style
+
+from utils.dashboard import generate_dashboard
 
 DRY_RUN = True
 
@@ -78,7 +85,47 @@ def extractDriveFiles(materials):
     
     return files
 
+def getAnnouncements(service,course_id):
 
+    try:
+        results=service.courses().announcements().list(courseId=course_id).execute()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return []
+
+    announcements=results.get("announcements",[])
+
+    return announcements
+
+
+def extractAnnouncementFiles(announcements):
+
+    files=[]
+
+    for a in announcements:
+
+        title=a.get("text","Announcement")
+
+        materials=a.get("materials",[])
+
+        for item in materials:
+            
+            drive=item.get("driveFile")
+
+            if drive:
+                file_id=drive["driveFile"]["id"]
+                name=drive["driveFile"]["title"]
+
+
+                files.append({
+                    "title": title,
+                    "file_id": file_id,
+                    "name": name
+                })
+
+
+    return files
 
 def downloadFile(drive_service,file_id,filename,folder):
 
@@ -104,9 +151,28 @@ def downloadFile(drive_service,file_id,filename,folder):
 
     while not done:
         status,done=downloader.next_chunk()
+
+    time.sleep(0.15)
     
     print(Fore.GREEN + f"Downloaded {filename} to {filepath}")
 
+
+def mySection(title):
+
+    title=title.upper()
+
+    otherSections=["B","C","D","E","F","G"]
+    
+
+    for sec in otherSections:
+        if f"SECTION {sec}" in title or f"SEC {sec}" in title or f"CS-{sec}" in title or f"CS {sec}" in title:
+            return False
+
+    if f"SECTION {MY_SECTION}" in title or f"SEC {MY_SECTION}" in title or f"CS-{MY_SECTION}" in title or f"CS {MY_SECTION}" in title:
+        return True
+    
+
+    return True
 
 def normalize_course_name(name):
 
@@ -155,10 +221,13 @@ def downloadNotes(classroom,drive,courses):
         materials=getCourseMaterials(classroom,course["id"])
         coursework=getCourseWork(classroom,course["id"])
 
+        announcement=getAnnouncements(classroom,course["id"])
+        announcementFiles=extractAnnouncementFiles(announcement)
+
         materialFiles=extractDriveFiles(materials)
         assignmentFiles=extractDriveFiles(coursework)
 
-        files=materialFiles + assignmentFiles
+        files=materialFiles + assignmentFiles + announcementFiles
 
         if not files:
             print(Fore.YELLOW + "No files found for this course.")
@@ -168,34 +237,60 @@ def downloadNotes(classroom,drive,courses):
 
         course_folder=os.path.join(DOWNLOAD_FOLDER, normalized_name)
 
+        seen=set()
+
+        tasks=[]
+
         for f in files:
 
-            filename=f["name"]
+            if f["file_id"] in seen:
+                continue
+
+            seen.add(f["file_id"])
+
+            filename=sanitize_filename(f["name"])
             title=f["title"]
             category=classify_file(filename + " " + title)
             number=extract_number(title)
 
 
             if category == "Assignments" and number:
-                folder = os.path.join(course_folder, "Theory", "Assignments", f"Assignment {int(number)}")
+                base = os.path.join(course_folder, "Theory", "Assignments", f"Assignment {int(number)}")
+
+                if mySection(title):
+                    folder = base
+                else:
+                    folder = os.path.join(base, "0. Other Sections")
 
             elif category=="Deliverable" and number:
-                folder = os.path.join(course_folder, "Theory", "Deliverables", f"Deliverable {int(number)}")
+                base = os.path.join(course_folder, "Theory", "Deliverables", f"Deliverable {int(number)}")
+
+                if mySection(title):
+                    folder = base
+                else:
+                    folder = os.path.join(base, "0. Other Sections")
 
             elif category == "Lecture Slides" and number:
                 folder = os.path.join(course_folder, "Theory", "Lecture Slides", f"Lecture {int(number)}")
             
             elif category == "Homework" and number:
-                folder = os.path.join(course_folder, "Theory", "Homework", f"Homework {int(number)}")
+                base = os.path.join(course_folder, "Theory", "Homework", f"Homework {int(number)}")
 
-            elif category == "Class Activities" and number:
-                folder = os.path.join(course_folder, "Theory", "Class Activities", f"Activity {int(number)}")
+                if mySection(title):
+                    folder = base
+                else:
+                    folder = os.path.join(base, "0. Other Sections")
+
 
             elif category == "Lab Work":
-
                 if number:
-                    folder = os.path.join(course_folder, "Lab", "Lab Work", f"Lab {int(number)}")
-                    
+                    base = os.path.join(course_folder, "Lab", "Lab Work", f"Lab {int(number)}")
+
+                    if mySection(title):
+                        folder = base
+                    else:
+                        folder=os.path.join(base, "0. Other Sections")
+                        
                 else:
                     folder = os.path.join(course_folder, "Lab", "Lab Work")
 
@@ -207,6 +302,22 @@ def downloadNotes(classroom,drive,courses):
             
             print(Fore.BLUE + f"Processing file: {filename} | Classified as: {category} | Title: {title}")
 
-            downloadFile(drive,f["file_id"],filename,folder)
+            tasks.append((f["file_id"], filename, folder))
+    
+        print(Fore.CYAN + f"Total files to download for {course_name}: {len(tasks)}")
+
+        print(Fore.CYAN + f"Total unique files detected: {len(seen)}")
+
+
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            
+            futures = [executor.submit(downloadFile, drive, file_id, filename, folder) for file_id, filename, folder in tasks]
+
+            for _ in tqdm(futures, desc=f"Downloading {course_name}", unit="file"):
+                _.result()
+
+
+    generate_dashboard(DOWNLOAD_FOLDER)
 
         

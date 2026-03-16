@@ -19,7 +19,7 @@ def classify_file(name):
     if "outline" in name or "syllabus" in name:
         return "Course Outline"
 
-    if "book" in name or "ebook" in name:
+    if "book" in name or "ebook" in name or "textbook" in name or "solution-manual" in name or "solution manual" in name:
         return "E-Books"
 
     if "mid" in name or "final" in name or "sessional" in name:

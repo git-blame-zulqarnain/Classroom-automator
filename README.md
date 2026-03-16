@@ -33,5 +33,5 @@ Idea:
 
 
 Find all material from announcements
-
+parallel downloading 
 

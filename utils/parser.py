@@ -9,3 +9,8 @@ def extract_number(title):
     
     return None
     
+def sanitize_filename(name):
+
+    name = re.sub(r'[<>:"/\\|?*]', '', name)
+
+    return name.strip()
