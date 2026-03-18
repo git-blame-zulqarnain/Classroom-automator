@@ -74,26 +74,21 @@ def getSubmissionStatus(service,course_id,courseWork_id):
 
 
 
+from datetime import datetime
+
 def sortByDue(assignments):
     
     def key(a):
-        dueDate=a.get("dueDate")
-        dueTime=a.get("dueTime")
-
-        if not dueDate:
-            return (9999,12,31,23,59)
-
-
-        year=dueDate["year"]
-        month=dueDate["month"]
-        day=dueDate["day"]
-
-        hours=dueTime.get("hours",23) if dueTime else 23
-        minutes=dueTime.get("minutes",59) if dueTime else 59
-
-
-        return (year,month,day,hours,minutes)
-
-
-    return sorted(assignments,key=key)
-
+        
+        due = a.get("dueDate")
+        time = a.get("dueTime", {})
+        
+        if not due:
+            return datetime.max
+        
+        h = time.get("hours", 23)
+        m = time.get("minutes", 59)
+        
+        return datetime(due["year"], due["month"], due["day"], h, m)
+    
+    return sorted(assignments, key=key)

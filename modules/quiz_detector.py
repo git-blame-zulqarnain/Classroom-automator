@@ -258,6 +258,8 @@ def detectQuizzes(classroom, courses):
     if not detected:
         print(Fore.GREEN + "NO ACTIVE QUIZZES FOUND")
         return
+    
+    detected.sort(key=lambda q: datetime.strptime(str(q['date_info']).split(' -> ')[0], "%Y-%m-%d"))
 
     print()
     print(Fore.RED + "\t\t ACTIVE QUIZZES")
