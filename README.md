@@ -8,7 +8,7 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-E95420?style=for-the-badge&logo=windows&logoColor=white)
 
-**A Python tool to automatically fetch and manage your Google Classroom courses, assignments, quizzes, and materials — with a simple key-press interface.**
+**A Python tool to automatically fetch and manage your Google Classroom courses, assignments, quizzes, and materials with a simple key-press interface.**
 
 [Features](#-features) · [Architecture](#-architecture) · [Tech Stack](#-tech-stack) · [Project Structure](#-project-structure) · [Setup](#-setup--installation) · [Usage](#-how-to-run) · [Screenshots](#-results--screenshots) · [Troubleshooting](#-troubleshooting)
 
