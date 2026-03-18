@@ -152,7 +152,7 @@ def detectQuizzes(classroom, courses):
         return
 
     print()
-    print(Fore.RED + "\t\t ⚠ ACTIVE QUIZZES")
+    print(Fore.RED + "\t\t ACTIVE QUIZZES")
     print()
 
     for q in detected:
@@ -162,6 +162,6 @@ def detectQuizzes(classroom, courses):
 
         if q['deadlines']:
             print(Fore.YELLOW + f"Possible Time: {', '.join(q['deadlines'])}")
-            print(Fore.RED + "⚠ UPCOMING QUIZ")
+            print(Fore.RED + "UPCOMING QUIZ")
 
         print("-" * 50)
