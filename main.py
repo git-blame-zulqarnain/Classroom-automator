@@ -3,6 +3,7 @@ from modules.courses import filterCourses, getCourses,printCourses
 from modules.assignments import (getAssignments,getSubmissionStatus,stillDue,forMySection,sortByDue)
 from colorama import Fore,Style,init
 from modules.downloader import (getCourseMaterials,extractDriveFiles,downloadFile,downloadNotes)
+from modules.quiz_detector import contains_quiz, detectQuizzes,forMySection,is_upcoming,extractPossibleDeadline
 
 init(autoreset=True)
 
@@ -11,6 +12,7 @@ init(autoreset=True)
 
 def main():
 
+
     SHOW_NO_DUE = input("Show assignments with NO due date? (y/n): ").lower() == "y"
 
     classroom, drive = getServices()
@@ -18,6 +20,12 @@ def main():
     if classroom and drive:
         print("Connected to Google APIs")
 
+        print("Show Quizzes Due?(y/n): ", end="")
+        
+        if input().lower() == "y":
+             detectQuizzes(classroom, getCourses(classroom))
+
+             
         all_courses = getCourses(classroom)
         relevant_courses=filterCourses(all_courses)
 
