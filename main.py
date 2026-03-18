@@ -5,6 +5,7 @@ from modules.downloader import downloadNotes
 from modules.quiz_detector import detectQuizzes
 from colorama import Fore, Style, init
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import sys
 
 init(autoreset=True)
@@ -27,28 +28,50 @@ except ImportError:
 
 def formatDeadline(dueDate, dueTime):
     try:
-        date_obj = datetime.strptime(dueDate, "%Y-%m-%d")
-        date_str = date_obj.strftime("%d %B %Y")
+        year = dueDate["year"]
+        month = dueDate["month"]
+        day = dueDate["day"]
 
-    except:
-        date_str = dueDate
+        hour = dueTime.get("hours", 0)
+        minute = dueTime.get("minutes", 0)
 
+        due_obj = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo("UTC"))
+        due_pkt = due_obj.astimezone(ZoneInfo("Asia/Karachi"))
 
-    return f"{date_str} | {dueTime}"
+        return due_pkt.strftime("%d %B %Y | %H:%M")
 
-def timeRemaining(dueDate):
+    except Exception as e:
+        return f"{dueDate} | {dueTime}"
 
+def timeRemaining(dueDate, dueTime):
     try:
-        due_obj = datetime.strptime(dueDate, "%Y-%m-%d")
-        diff = due_obj - datetime.utcnow()
+        year = dueDate["year"]
+        month = dueDate["month"]
+        day = dueDate["day"]
+
+        hour = dueTime.get("hours", 0)
+        minute = dueTime.get("minutes", 0)
+
+        due_obj = datetime(year, month, day, hour, minute, tzinfo=ZoneInfo("UTC"))
+
+        due_pkt = due_obj.astimezone(ZoneInfo("Asia/Karachi"))
+
+        now_pkt = datetime.now(ZoneInfo("Asia/Karachi"))
+
+        diff = due_pkt - now_pkt
+
+        if diff.total_seconds() < 0:
+            return "Past Due"
+
         days = diff.days
+        hours = diff.seconds // 3600
 
-        return f"{days} days" if days >= 0 else "Past Due"
-    
-    except:
+        return f"{days}d {hours}h remaining"
 
+    except Exception as e:
         return "Unknown"
 
+    
 def main():
 
     classroom, drive = getServices()
@@ -110,8 +133,12 @@ def main():
                         continue
                     
                     status = getSubmissionStatus(classroom, selected_course["id"], a["id"])
+                    
+                    if status != "TURNED_IN":
+                        status= "PENDING"
+                        
                     deadline_str = formatDeadline(a["dueDate"], a["dueTime"])
-                    remaining = timeRemaining(a["dueDate"])
+                    remaining = timeRemaining(a["dueDate"], a["dueTime"])
                     
                     print(Fore.CYAN + f"Course Name: {selected_course['name']}")
                     print(Fore.YELLOW + f"Assignment Title: {a['title']}")
