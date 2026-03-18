@@ -5,11 +5,11 @@ import sys
 import json
 
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from concurrent.futures import ThreadPoolExecutor
 from config.settings import MY_SECTION
 from tqdm import tqdm
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config.filePath import DOWNLOAD_FOLDER
 
