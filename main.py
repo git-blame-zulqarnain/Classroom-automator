@@ -23,7 +23,11 @@ def main():
         print("Show Quizzes Due?(y/n): ", end="")
         
         if input().lower() == "y":
-             detectQuizzes(classroom, getCourses(classroom))
+             
+            all_courses = getCourses(classroom)
+            relevant_courses=filterCourses(all_courses)
+
+            detectQuizzes(classroom, relevant_courses)
 
              
         all_courses = getCourses(classroom)
