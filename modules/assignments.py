@@ -1,18 +1,41 @@
+
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from datetime import date
 from config.settings import MY_SECTION
 
+from modules.courses import filterCourses,getCourses
 
 def forMySection(title):
     title=title.upper()
 
     otherSections=["B","C","D","E","F","G"]
     
+    path="data/relevant_courses.json"
 
     for sec in otherSections:
-        if f"SECTION {sec}" in title or f"SEC {sec}" in title or f"CS-{sec}" in title or f"CS {sec}" in title:
+        if f"SECTION {sec}" in title or f"SECTION-{sec}" in title or f"SEC-{sec}" in title or f"SEC {sec}" in title or f"CS-{sec}" in title or f"CS {sec}" in title:
             return False
+        if f"{sec} AND " in title or f"{sec} & " in title:
+            if f"AND {MY_SECTION}" in title or f"& {MY_SECTION}" in title:
+                return True
+            else:
+                return False
 
-    if f"SECTION {MY_SECTION}" in title or f"SEC {MY_SECTION}" in title or f"CS-{MY_SECTION}" in title or f"CS {MY_SECTION}" in title:
+        if f"AND {sec}" in title or f"& {sec}" in title:
+            if f"{MY_SECTION} AND " in title or f"{MY_SECTION} & " in title:
+                return True
+            else:
+                return False
+
+            
+        
+        
+
+
+    if f"SECTION {MY_SECTION}" in title or f"SECTION-{MY_SECTION}" in title or f"SEC-{MY_SECTION}" in title or f"SEC {MY_SECTION}" in title or f"CS-{MY_SECTION}" in title or f"CS {MY_SECTION}" in title:
         return True
     
 
