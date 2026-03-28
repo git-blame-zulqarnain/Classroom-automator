@@ -23,7 +23,7 @@ from colorama import Fore, Style
 
 from utils.dashboard import generate_dashboard
 
-DRY_RUN = True
+DRY_RUN = False
 
 
 def getCourseMaterials(service,course_id):
